@@ -1,0 +1,141 @@
+\documentclass[12pt]{article}
+\usepackage{fancyhdr}
+\usepackage[letterpaper, margin=1in]{geometry}
+%\usepackage{indentfirst}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{siunitx}
+\sisetup{detect-weight=true, detect-family=true} % makes siunitx follow font formatting like bold, italic, etc.
+\usepackage{cancel}
+\usepackage{isotope}
+\usepackage{listings}
+\usepackage[dvipsnames,table]{xcolor}
+\usepackage{xspace}
+\usepackage{booktabs} % makes tables pretty
+\usepackage{longtable} % for long tables
+\usepackage{multirow} % makes tables pretty
+\usepackage{multicol} % makes tables pretty
+\usepackage{setspace}
+\usepackage{subcaption}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\newcommand{\creflastconjunction}{, and\nobreakspace} % adds oxford comma to cleveref
+\usepackage[utf8]{inputenc}
+\usepackage{textcomp}
+\usepackage{titlesec}
+\usepackage{svg}
+\usepackage{pdflscape} % makes pages landscape
+\usepackage{mathtools}
+\usepackage{enumitem}
+\usepackage[T1]{fontenc}
+
+
+% ----------------- Commands ---------------------%
+\newcommand{\mathcolorbox}[2]{\colorbox{#1}{$\displaystyle #2$}}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+% listings stuff for python
+% Default fixed font does not support bold face
+\DeclareFixedFont{\ttb}{T1}{txtt}{bx}{n}{12} % for bold
+\DeclareFixedFont{\ttm}{T1}{txtt}{m}{n}{12}  % for normal
+
+% Custom colors
+%\usepackage{color}
+\definecolor{deepblue}{rgb}{0,0,0.5}
+\definecolor{deepred}{rgb}{0.6,0,0}
+\definecolor{deepgreen}{rgb}{0,0.5,0}
+
+%\usepackage{listings}
+
+% Python style for highlighting
+\newcommand\pythonstyle{\lstset{
+language=Python,
+basicstyle=\ttm,
+morekeywords={self},              % Add keywords here
+keywordstyle=\ttb\color{deepblue},
+emph={MyClass,__init__},          % Custom highlighting
+emphstyle=\ttb\color{deepred},    % Custom highlighting style
+stringstyle=\color{deepgreen},
+commentstyle=\color{codegray},
+backgroundcolor = \color{backcolour},
+breaklines=true,
+numbers=left,
+numberstyle=\small\color{codegray},
+frame=tb,                         % Any extra options here
+showstringspaces=false
+}}
+
+% Python for external files
+\newcommand\pythonexternal[2][]{{
+\pythonstyle
+\lstinputlisting[#1]{#2}}}
+
+
+
+
+% si units stuff
+\DeclareSIUnit\year{yr}
+\DeclareSIUnit\hour{hr}
+\DeclareSIUnit\mole{mol}
+
+% fancy header stuff
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+
+\setlength{\headheight}{28pt}
+\lhead{NSE 565 \\ Winter 2022}
+\chead{Homework 2\\}
+\rhead{Austin Warren\\Due March 11, 2022}
+
+% bib if needed
+\bibliographystyle{ieeetr}
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Methods}
+First, we will prepare the Upwind scheme for the spatial discretization. The conditions for the Upwind scheme are listed below:
+\begin{equation*}
+    \phi_{i+1} = \begin{cases}
+                    \phi_{I} & \overline{V} > 0\\
+                    \phi_{I+1} & \overline{V} < 0
+                 \end{cases}\:,
+\end{equation*}
+and
+\begin{equation}
+    \left(\frac{\partial \phi}{\partial x}\right)_{i-1} = \frac{\phi_{I} - \phi_{I-1}}{\Delta x}\:.
+\end{equation}
+Discretizing gives:
+\begin{equation*}
+    \left( \rho u_x \right)_{i+1} \phi_{i+1} - \left( \rho u_x \right)_{i-1} \phi_{i-1} = \Gamma \left( \frac{\partial \phi}{\partial x} \right)_{i+1} - \Gamma \left( \frac{\partial \phi}{\partial x} \right)_{i-1}
+\end{equation*}
+Plugging in our Upwind scheme conditions for velocity greater than zero gives:
+\begin{equation*}
+    \left[-2F - D  \right] \phi_{I-1} + \left[ 2F + 2D \right] \phi_{I} + \left[ D \right] \phi_{I+1} = 0\:,
+\end{equation*}
+where
+\begin{equation*}
+    D = \frac{\Gamma}{\Delta x} ~~~~~ F = \frac{\rho u_x}{2}\:.
+\end{equation*}
+This equation works for the interior nodes. For the boundary nodes, we will need different equations. For the left boundary:
+\begin{equation*}
+    \left[ 2F + 2D \right] \phi_{I} + \left[ D \right] \phi_{I+1} = \left[ 2F + D \right] \phi_{L}\:.
+\end{equation*}
+For the right boundary:
+\begin{equation*}
+    \left[ -D \right] \phi_{I-1} + \left[ -2F - 2D \right] \phi_{I} = \left[ -2F + D \right] \phi_{R}\:.
+\end{equation*}
+
+
+
+
+
+
+
+
+
+\end{document}
