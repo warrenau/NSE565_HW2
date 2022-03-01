@@ -131,17 +131,20 @@ For the right boundary:
 \end{equation*}
 We have three different time discretizations for this problem: Explicit Euler, Implicit Euler, and Trapezoidal.
 Explicit Euler:
+% \begin{equation*}
+%     \phi_{I}^{n+1} = \frac{1}{\rho\: \Delta x}\left[ \rho u_x\: \Delta t + \frac{\Gamma\: \Delta t}{\Delta x}\right] \phi_{I-1}^{n} + \frac{1}{\rho\:\Delta x}\left[ \rho \:\Delta x - \rho u_x\: \Delta t - \frac{2\Gamma\: \Delta t}{\Delta x} \right] \phi_{I}^{n} + \frac{1}{\rho\:\Delta x}\left[ \frac{\Gamma\:\Delta t}{\Delta x} \right]\phi_{I+1}^{n}
+% \end{equation*}
 \begin{equation*}
-    \phi_{I}^{n+1} = \frac{1}{\rho V}\left[ \rho u_x\: \Delta t \right] \phi_{I-1}^{n} + \frac{1}{\rho V}\left[ \rho V - \rho u_x\: \Delta t - \frac{2\Gamma\: \Delta t}{\Delta x} \right] \phi_{I}^{n} + \frac{1}{\rho V}\left[ \frac{\Gamma\:\Delta t}{\Delta x} \right]\phi_{I+1}^{n}
+    \phi_{I}^{n+1} = \left[ \frac{u_x\: \Delta t}{\Delta x} + \frac{\Gamma\: \Delta t}{\rho\: \left(\Delta x)^2\right)} \right] \phi_{I-1}^{n} + \left[ 1 - \frac{u_x\: \Delta t}{\Delta x} - \frac{2\Gamma\: \Delta t}{\rho\: \left(\Delta x\right)^2} \right] \phi_{I}^{n} + \left[ \frac{\Gamma\:\Delta t}{\rho\: \left(\Delta x\right)^2} \right]\phi_{I+1}^{n}
 \end{equation*}
 Implicit Euler:
 \begin{equation*}
-    \frac{1}{\rho V}\left[ -\rho u_x\: \Delta t \right]\phi_{I-1}^{n+1} + \frac{1}{\rho V}\left[ \rho V + \rho u_x\: \Delta t + 2\frac{\Gamma\: \Delta t}{\Delta x} \right]\phi_{I}^{n+1} + \frac{1}{\rho V}\left[ -\frac{\Gamma\: \Delta t}{\Delta x} \right]\phi_{I+1}^{n+1} = \phi_{I}^{n}
+    \frac{1}{\rho \:\Delta x}\left[ -\rho u_x\: \Delta t \right]\phi_{I-1}^{n+1} + \frac{1}{\rho \:\Delta x}\left[ \rho \:\Delta x + \rho u_x\: \Delta t + 2\frac{\Gamma\: \Delta t}{\Delta x} \right]\phi_{I}^{n+1} + \frac{1}{\rho \:\Delta x}\left[ -\frac{\Gamma\: \Delta t}{\Delta x} \right]\phi_{I+1}^{n+1} = \phi_{I}^{n}
 \end{equation*}
 Trapezoidal:
 \begin{multline*}
-    \left[ -\frac{\rho u_x\: \Delta t}{2} - \frac{\Gamma\: \Delta t}{2\: \Delta x} \right]\phi_{I-1}^{n+1} + \left[ \rho V + \frac{\rho u_x\: \Delta t}{2} + \frac{\Gamma\: \Delta t}{\Delta x} \right]\phi_{I}^{n+1} + \left[ -\frac{\Gamma\: \Delta t}{2\: \Delta x} \right]\phi_{I+1}^{n+1}\\
-    = \left[ \frac{\rho u_x\: \Delta t}{2} + \frac{\Gamma\: \Delta t}{2\: \Delta x} \right]\phi_{I-1}^{n} + \left[ \rho V - \frac{\rho u_x\: \Delta t}{2} - \frac{\Gamma\: \Delta t}{\Delta x} \right]\phi_{I}^{n} + \left[ \frac{\Gamma\: \Delta t}{2\: \Delta x} \right]\phi_{I+1}^{n}
+    \left[ -\frac{\rho u_x\: \Delta t}{2} - \frac{\Gamma\: \Delta t}{2\: \Delta x} \right]\phi_{I-1}^{n+1} + \left[ \rho \:\Delta x + \frac{\rho u_x\: \Delta t}{2} + \frac{\Gamma\: \Delta t}{\Delta x} \right]\phi_{I}^{n+1} + \left[ -\frac{\Gamma\: \Delta t}{2\: \Delta x} \right]\phi_{I+1}^{n+1}\\
+    = \left[ \frac{\rho u_x\: \Delta t}{2} + \frac{\Gamma\: \Delta t}{2\: \Delta x} \right]\phi_{I-1}^{n} + \left[ \rho \:\Delta x - \frac{\rho u_x\: \Delta t}{2} - \frac{\Gamma\: \Delta t}{\Delta x} \right]\phi_{I}^{n} + \left[ \frac{\Gamma\: \Delta t}{2\: \Delta x} \right]\phi_{I+1}^{n}
 \end{multline*}
 
 

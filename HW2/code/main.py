@@ -43,19 +43,18 @@ def UDS_positve(num_volumes, tot_length, density, velocity, diffusion, left, rig
     return phi
 
 
-def EE_time_step(dt, num_volumes, tot_length, phi_in, density, volume, velocity, diffusion, left, right):
+def EE_time_step(dt, dx, phi_in, density, velocity, diffusion, left, right):
     """ Explicit Euler solve for next time step
     """
-    dx = tot_length/num_volumes
     phi_out = np.zeros(len(phi_in))
 
     for j in range(len(phi_in)):
         if j==0:
-            phi_out[j] = velocity*dt/volume*left + (1-velocity*dt/volume-2*diffusion*dt/dx/density/volume)*phi_in[j] + diffusion*dt/dx/density/volume*phi_in[j+1]
+            phi_out[j] = (velocity*dt/dx + 2*diffusion*dt/density/dx**2)*left + (1-velocity*dt/dx-3*diffusion*dt/density/dx**2)*phi_in[j] + (diffusion*dt/density/dx**2)*phi_in[j+1]
         elif j==len(phi_in)-1:
-            phi_out[j] = velocity*dt/volume*phi_in[j-1] + (1-velocity*dt/volume-2*diffusion*dt/dx/density/volume)*phi_in[j] + diffusion*dt/dx/density/volume*right
+            phi_out[j] = (velocity*dt/dx + diffusion*dt/density/dx**2)*phi_in[j-1] + (1-velocity*dt/dx-3*diffusion*dt/density/dx**2)*phi_in[j] + (2*diffusion*dt/density/dx**2)*right
         else:
-            phi_out[j] = velocity*dt/volume*phi_in[j-1] + (1-velocity*dt/volume-2*diffusion*dt/dx/density/volume)*phi_in[j] + diffusion*dt/dx/density/volume*phi_in[j+1]
+            phi_out[j] = velocity*dt/dx*phi_in[j-1] + (1-velocity*dt/dx-2*diffusion*dt/density/dx**2)*phi_in[j] + (diffusion*dt/density/dx**2)*phi_in[j+1]
     return phi_out
 
 
@@ -76,22 +75,23 @@ phi_init[:] = 50
 K = np.array([0.2, 2.0, 20])
 dx = tot_length/num_volumes
 x = np.linspace(dx/2, tot_length-dx/2,num_volumes)
-volume = dx*1*1
+#volume = dx
 dt = K*dx/velocity
 max_iter = 256
 
 
-for j in range(len(dt)):
-    t = np.linspace(0,dt[j]*256,256)
-    phi_in = phi_init
-    m=0
-    phi_plot = np.zeros((5,num_volumes))
-    for n in range(len(t)):
-        if n==0 or n==4 or n==16 or n==64 or n==256:
-            phi_plot[m,:] = phi_in[:]
-            m += 1
-        phi_out = EE_time_step(dt[j], num_volumes, tot_length, phi_in, density, volume, velocity, diffusion, left, right)
-        phi_in[:] = phi_out[:]
+
+#for j in range(len(dt)):
+t = np.linspace(0,dt[0]*256,256)
+phi_in = phi_init
+m=0
+phi_plot = np.zeros((5,num_volumes))
+for n in range(len(t)):
+    if n==0 or n==4 or n==16 or n==64 or n==256:
+        phi_plot[m,:] = phi_in[:]
+        m += 1
+    phi_out = EE_time_step(dt[0], dx, phi_in, density, velocity, diffusion, left, right)
+    phi_in[:] = phi_out[:]
 
 # plot
 plt.rcParams['font.family'] = 'serif'
@@ -108,3 +108,22 @@ plt.figlegend(loc='right', bbox_to_anchor=(0.4,0.2))
 plt.grid(b=True, which='major', axis='both')
 plt.savefig('HW2/plots/graph_EE_case1.pdf',transparent=True)
 #plt.savefig('HW1/plots/graph_case'+str(k+1)+'.svg',transparent=True)
+
+
+
+
+
+# # solve steady equation -- just spatial discretization
+# phi_spatial = UDS_positve(num_volumes, tot_length, density, velocity, diffusion, left, right)
+
+
+# # plot spatial only solution
+# plt.rcParams['font.family'] = 'serif'
+# plt.rcParams['mathtext.fontset'] = 'dejavuserif'
+# plt.figure(facecolor='w', edgecolor='k', dpi=300)
+# plt.plot(x, phi_spatial, '-k', label='Spatial')
+# plt.xlabel('x (m)')
+# plt.ylabel(r'$\phi$')
+# plt.figlegend(loc='right', bbox_to_anchor=(0.4,0.2))
+# plt.grid(b=True, which='major', axis='both')
+# plt.savefig('HW2/plots/graph_EE_spatial.pdf',transparent=True)
