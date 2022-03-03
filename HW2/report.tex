@@ -130,18 +130,48 @@ For the right boundary:
     \left[ -D \right] \phi_{I-1} + \left[ -2F - 2D \right] \phi_{I} = \left[ -2F + D \right] \phi_{R}\:.
 \end{equation*}
 We have three different time discretizations for this problem: Explicit Euler, Implicit Euler, and Trapezoidal.
-Explicit Euler:
+
+
+\subsection{Explicit Euler}
 % \begin{equation*}
 %     \phi_{I}^{n+1} = \frac{1}{\rho\: \Delta x}\left[ \rho u_x\: \Delta t + \frac{\Gamma\: \Delta t}{\Delta x}\right] \phi_{I-1}^{n} + \frac{1}{\rho\:\Delta x}\left[ \rho \:\Delta x - \rho u_x\: \Delta t - \frac{2\Gamma\: \Delta t}{\Delta x} \right] \phi_{I}^{n} + \frac{1}{\rho\:\Delta x}\left[ \frac{\Gamma\:\Delta t}{\Delta x} \right]\phi_{I+1}^{n}
 % \end{equation*}
-\begin{equation*}
+Inner Nodes:
+\begin{equation}
     \phi_{I}^{n+1} = \left[ \frac{u_x\: \Delta t}{\Delta x} + \frac{\Gamma\: \Delta t}{\rho\: \left(\Delta x)^2\right)} \right] \phi_{I-1}^{n} + \left[ 1 - \frac{u_x\: \Delta t}{\Delta x} - \frac{2\Gamma\: \Delta t}{\rho\: \left(\Delta x\right)^2} \right] \phi_{I}^{n} + \left[ \frac{\Gamma\:\Delta t}{\rho\: \left(\Delta x\right)^2} \right]\phi_{I+1}^{n}
-\end{equation*}
-Implicit Euler:
-\begin{equation*}
-    \frac{1}{\rho \:\Delta x}\left[ -\rho u_x\: \Delta t \right]\phi_{I-1}^{n+1} + \frac{1}{\rho \:\Delta x}\left[ \rho \:\Delta x + \rho u_x\: \Delta t + 2\frac{\Gamma\: \Delta t}{\Delta x} \right]\phi_{I}^{n+1} + \frac{1}{\rho \:\Delta x}\left[ -\frac{\Gamma\: \Delta t}{\Delta x} \right]\phi_{I+1}^{n+1} = \phi_{I}^{n}
-\end{equation*}
-Trapezoidal:
+    \label{eq:ee inner}
+\end{equation}
+Left Node (Node 1):
+\begin{equation}
+    \phi_{I}^{n+1} = \left[ \frac{u_x\: \Delta t}{\Delta x} \right]\phi_{L} + \left[ 1 - \frac{u_x\:\Delta t}{\Delta x} - \frac{3\Gamma\:\Delta t}{\rho\left(\Delta x\right)^2} \right]\phi_{I}^{n} + \left[ \frac{\Gamma\:\Delta t}{\Delta x} \right]\phi_{I+1}^{n}
+    \label{eq:ee left}
+\end{equation}
+Right Node (Node N):
+\begin{equation}
+    \phi_{I}^{n+1} = \left[ \frac{u_x\:\Delta t}{\Delta x} + \frac{\Gamma\:\Delta t}{\rho\left(\Delta x\right)^2} \right]\phi_{I-1}^{n} + \left[ 1 - \frac{u_x\:\Delta t}{\Delta x} - \frac{3\Gamma\:\Delta t}{\rho\left(\Delta x\right)^2} \right]\phi_{I}^{n} + \left[ \frac{2\Gamma\:\Delta t}{\rho\left(\Delta x\right)^2} \right]\phi_{R}
+    \label{eq:ee right}
+\end{equation}
+
+
+\subsection{Implicit Euler}
+Inner Nodes:
+\begin{equation}
+    \left[ \frac{-u_x\: \Delta t}{\Delta x} - \frac{\Gamma\:\Delta t}{\rho\left(\Delta x\right)^2} \right]\phi_{I-1}^{n+1} + \left[ 1 + \frac{u_x\: \Delta t}{\Delta x} + \frac{2\Gamma\: \Delta t}{\rho\left(\Delta x\right)^2} \right]\phi_{I}^{n+1} + \left[ -\frac{\Gamma\: \Delta t}{\rho\left(\Delta x\right)^2} \right]\phi_{I+1}^{n+1} = \phi_{I}^{n}
+    \label{eq:ie inner}
+\end{equation}
+Left Node (Node 1):
+\begin{equation}
+    \left[ 1 + \frac{u_x\:\Delta t}{\Delta x} + \frac{3\Gamma\:\Delta t}{\rho\left(\Delta x\right)^2} \right]\phi_{I}^{n+1} + \left[ -\frac{\Gamma\:\Delta t}{\rho\left(\Delta x\right)^2} \right]\phi_{I+1}^{n+1} = \phi_{I}^{n} + \left[ \frac{u_x\:\Delta t}{\Delta x} + \frac{2\Gamma\:\Delta t}{\rho\left(\Delta x\right)^2} \right]\phi_{L}
+    \label{eq:ie left}
+\end{equation}
+Right Node (Node N):
+\begin{equation}
+    \left[ -\frac{u_x\:\Delta t}{\Delta x} - \frac{\Gamma\:\Delta t}{\rho\left(\Delta x\right)^2} \right]\phi_{I-1}^{n+1} + \left[ 1 + \frac{u_x\:\Delta t}{\Delta x} + \frac{3\Gamma\:\Delta t}{\rho\left(\Delta x\right)^2} \right]\phi_{I}^{n+1} = \phi_{I}^{n} + \left[ \frac{2\Gamma\:\Delta t}{\rho\left(\Delta x\right)^2} \right]\phi_{R}
+    \label{eq:ie right}
+\end{equation}
+
+
+\subsection{Trapezoidal}
 \begin{multline*}
     \left[ -\frac{\rho u_x\: \Delta t}{2} - \frac{\Gamma\: \Delta t}{2\: \Delta x} \right]\phi_{I-1}^{n+1} + \left[ \rho \:\Delta x + \frac{\rho u_x\: \Delta t}{2} + \frac{\Gamma\: \Delta t}{\Delta x} \right]\phi_{I}^{n+1} + \left[ -\frac{\Gamma\: \Delta t}{2\: \Delta x} \right]\phi_{I+1}^{n+1}\\
     = \left[ \frac{\rho u_x\: \Delta t}{2} + \frac{\Gamma\: \Delta t}{2\: \Delta x} \right]\phi_{I-1}^{n} + \left[ \rho \:\Delta x - \frac{\rho u_x\: \Delta t}{2} - \frac{\Gamma\: \Delta t}{\Delta x} \right]\phi_{I}^{n} + \left[ \frac{\Gamma\: \Delta t}{2\: \Delta x} \right]\phi_{I+1}^{n}
@@ -150,7 +180,54 @@ Trapezoidal:
 
 
 
+\section{Results}
 
+\subsection{Explict Euler}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{plots/graph_EE_case1.pdf}
+    \caption{Explicit Euler solution for case 1: $K=0.2$.}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{plots/graph_EE_case2.pdf}
+    \caption{Explicit Euler solution for case 2: $K=2.0$.}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{plots/graph_EE_case3.pdf}
+    \caption{Explicit Euler solution for case 3: $K=20.0$.}
+\end{figure}
+
+Norm:
+\input{tabs/error_tab_ee.tex}
+
+
+\clearpage
+\subsection{Implicit Euler}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{plots/graph_IE_case1.pdf}
+    \caption{Implicit Euler solution for case 1: $K=0.2$.}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{plots/graph_IE_case2.pdf}
+    \caption{Implicit Euler solution for case 2: $K=2.0$.}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{plots/graph_IE_case3.pdf}
+    \caption{Implicit Euler solution for case 3: $K=20.0$.}
+\end{figure}
+
+
+Norm:
+\input{tabs/error_tab_ie.tex}
 
 
 
