@@ -98,55 +98,54 @@ showstringspaces=false
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Methods}
-First, we will prepare the Upwind scheme for the spatial discretization. The conditions for the Upwind scheme are listed below:
-\begin{equation*}
+We will use the Upwind scheme for the spatial discretization. The conditions for the Upwind scheme are listed below:
+\begin{equation}
     \phi_{i+1} = \begin{cases}
                     \phi_{I} & \overline{V} > 0\\
                     \phi_{I+1} & \overline{V} < 0
                  \end{cases}\:,
-\end{equation*}
+    \label{eq:upwind conditions}
+\end{equation}
 and
 \begin{equation}
     \left(\frac{\partial \phi}{\partial x}\right)_{i-1} = \frac{\phi_{I} - \phi_{I-1}}{\Delta x}\:.
+    \label{eq:cds gradient}
 \end{equation}
-Discretizing gives:
+To set up the temporal discretization, we begin with the transient convection-diffusion equation.
+\begin{equation}
+    \int\limits_{\Delta t}\frac{\partial}{\partial t}\left( \int\limits_{CV}\rho\phi dV \right)dt + \int\limits_{\Delta t}\:\int\limits_{S}\rho u_x \phi \cdot \overline{n}\:dS\:dt = \int\limits_{\Delta t}\:\int\limits_{S} \Gamma \frac{\partial \phi}{\partial x} \cdot \overline{n}\:dS\:dt
+    \label{eq:trans conv diff}
+\end{equation}
+We can apply the surface integral approximations to get:
 \begin{equation*}
-    \left( \rho u_x \right)_{i+1} \phi_{i+1} - \left( \rho u_x \right)_{i-1} \phi_{i-1} = \Gamma \left( \frac{\partial \phi}{\partial x} \right)_{i+1} - \Gamma \left( \frac{\partial \phi}{\partial x} \right)_{i-1}
+    \int\limits_{\Delta t}\frac{\partial}{\partial t}\left( \int\limits_{CV}\rho\phi dV \right)dt + \int\limits_{\Delta t}\left[ \rho u_x S\left( \phi_{i+1} - \phi_{i-1} \right) \right]\:dt = \int\limits_{\Delta t}\Gamma S\left[ \left( \frac{\partial \phi}{\partial x} \right)_{i+1} - \left( \frac{\partial \phi}{\partial x} \right)_{i-1} \right] dt\:.
 \end{equation*}
-Plugging in our Upwind scheme conditions for velocity greater than zero gives:
-\begin{equation*}
-    \left[-2F - D  \right] \phi_{I-1} + \left[ 2F + 2D \right] \phi_{I} + \left[ D \right] \phi_{I+1} = 0\:,
-\end{equation*}
-where
-\begin{equation*}
-    D = \frac{\Gamma}{\Delta x} ~~~~~ F = \frac{\rho u_x}{2}\:.
-\end{equation*}
-This equation works for the interior nodes. For the boundary nodes, we will need different equations. For the left boundary:
-\begin{equation*}
-    \left[ 2F + 2D \right] \phi_{I} + \left[ D \right] \phi_{I+1} = \left[ 2F + D \right] \phi_{L}\:.
-\end{equation*}
-For the right boundary:
-\begin{equation*}
-    \left[ -D \right] \phi_{I-1} + \left[ -2F - 2D \right] \phi_{I} = \left[ -2F + D \right] \phi_{R}\:.
-\end{equation*}
-We have three different time discretizations for this problem: Explicit Euler, Implicit Euler, and Trapezoidal.
+Performing the rest of the integrations, we get:
+\begin{equation}
+    \rho V \left( \phi_{I}^{n+1} - \phi_{I}^{n} \right) + \rho u_x S \left( \phi_{i+1} - \phi_{i-1} \right)\:\Delta t = \Gamma S \left[ \left( \frac{\partial \phi}{\partial x} \right)_{i+1} - \left( \frac{\partial \phi}{\partial x} \right)_{i-1} \right]\Delta t\:.
+    \label{eq:trans disc}
+\end{equation}
+We can apply \Cref{eq:upwind conditions} and \Cref{eq:cds gradient} for positive velocity. We can also divide by the surface to get:
+\begin{equation}
+    \rho\: \Delta x \left( \phi_{I}^{n+1} - \phi_{I}^{n} \right) + \rho u_x \Delta t \left( \phi_{I}^{X} - \phi_{I-1}^{X} \right) = \Gamma\:\Delta t \left[ \left( \frac{\phi_{I+1}^{X} - \phi_{I}^{X}}{\Delta x} \right) - \left( \phi_{I}^{X} - \phi_{I-1}^{X} \right) \right]\:.
+    \label{eq:trans upwind}
+\end{equation}
+We have three different time discretizations for this problem: Explicit Euler, Implicit Euler, and Trapezoidal. We can use \Cref{eq:trans upwind} for each scheme's inner nodes, but the boundary nodes will need to use \Cref{eq:trans disc} since they have different gradients.
 
 
 \subsection{Explicit Euler}
-% \begin{equation*}
-%     \phi_{I}^{n+1} = \frac{1}{\rho\: \Delta x}\left[ \rho u_x\: \Delta t + \frac{\Gamma\: \Delta t}{\Delta x}\right] \phi_{I-1}^{n} + \frac{1}{\rho\:\Delta x}\left[ \rho \:\Delta x - \rho u_x\: \Delta t - \frac{2\Gamma\: \Delta t}{\Delta x} \right] \phi_{I}^{n} + \frac{1}{\rho\:\Delta x}\left[ \frac{\Gamma\:\Delta t}{\Delta x} \right]\phi_{I+1}^{n}
-% \end{equation*}
+Explicit Euler uses the substitution: $\phi^{X} = \phi^{n}$.
 Inner Nodes:
 \begin{equation}
     \phi_{I}^{n+1} = \left[ \frac{u_x\: \Delta t}{\Delta x} + \frac{\Gamma\: \Delta t}{\rho\: \left(\Delta x)^2\right)} \right] \phi_{I-1}^{n} + \left[ 1 - \frac{u_x\: \Delta t}{\Delta x} - \frac{2\Gamma\: \Delta t}{\rho\: \left(\Delta x\right)^2} \right] \phi_{I}^{n} + \left[ \frac{\Gamma\:\Delta t}{\rho\: \left(\Delta x\right)^2} \right]\phi_{I+1}^{n}
     \label{eq:ee inner}
 \end{equation}
-Left Node (Node 1):
+Left Node (Node 1): $\phi_{i-1} = \phi_L$ and $\left( \frac{\partial \phi}{\partial x} \right)_{i-1} = \frac{\phi_I - \phi_L}{\Delta x/2}$
 \begin{equation}
     \phi_{I}^{n+1} = \left[ \frac{u_x\: \Delta t}{\Delta x} \right]\phi_{L} + \left[ 1 - \frac{u_x\:\Delta t}{\Delta x} - \frac{3\Gamma\:\Delta t}{\rho\left(\Delta x\right)^2} \right]\phi_{I}^{n} + \left[ \frac{\Gamma\:\Delta t}{\Delta x} \right]\phi_{I+1}^{n}
     \label{eq:ee left}
 \end{equation}
-Right Node (Node N):
+Right Node (Node N): $\phi_{i+1} = \phi_R$ and $\left( \frac{\partial \phi}{\partial x} \right)_{i+1} = \frac{\phi_R - \phi_I}{\Delta x/2}$
 \begin{equation}
     \phi_{I}^{n+1} = \left[ \frac{u_x\:\Delta t}{\Delta x} + \frac{\Gamma\:\Delta t}{\rho\left(\Delta x\right)^2} \right]\phi_{I-1}^{n} + \left[ 1 - \frac{u_x\:\Delta t}{\Delta x} - \frac{3\Gamma\:\Delta t}{\rho\left(\Delta x\right)^2} \right]\phi_{I}^{n} + \left[ \frac{2\Gamma\:\Delta t}{\rho\left(\Delta x\right)^2} \right]\phi_{R}
     \label{eq:ee right}
@@ -154,17 +153,18 @@ Right Node (Node N):
 
 
 \subsection{Implicit Euler}
+Implicit Euler uses the substitution: $\phi^{X} = \phi^{n+1}$.
 Inner Nodes:
 \begin{equation}
     \left[ \frac{-u_x\: \Delta t}{\Delta x} - \frac{\Gamma\:\Delta t}{\rho\left(\Delta x\right)^2} \right]\phi_{I-1}^{n+1} + \left[ 1 + \frac{u_x\: \Delta t}{\Delta x} + \frac{2\Gamma\: \Delta t}{\rho\left(\Delta x\right)^2} \right]\phi_{I}^{n+1} + \left[ -\frac{\Gamma\: \Delta t}{\rho\left(\Delta x\right)^2} \right]\phi_{I+1}^{n+1} = \phi_{I}^{n}
     \label{eq:ie inner}
 \end{equation}
-Left Node (Node 1):
+Left Node (Node 1): $\phi_{i-1} = \phi_L$ and $\left( \frac{\partial \phi}{\partial x} \right)_{i-1} = \frac{\phi_I - \phi_L}{\Delta x/2}$
 \begin{equation}
     \left[ 1 + \frac{u_x\:\Delta t}{\Delta x} + \frac{3\Gamma\:\Delta t}{\rho\left(\Delta x\right)^2} \right]\phi_{I}^{n+1} + \left[ -\frac{\Gamma\:\Delta t}{\rho\left(\Delta x\right)^2} \right]\phi_{I+1}^{n+1} = \phi_{I}^{n} + \left[ \frac{u_x\:\Delta t}{\Delta x} + \frac{2\Gamma\:\Delta t}{\rho\left(\Delta x\right)^2} \right]\phi_{L}
     \label{eq:ie left}
 \end{equation}
-Right Node (Node N):
+Right Node (Node N): $\phi_{i+1} = \phi_R$ and $\left( \frac{\partial \phi}{\partial x} \right)_{i+1} = \frac{\phi_R - \phi_I}{\Delta x/2}$
 \begin{equation}
     \left[ -\frac{u_x\:\Delta t}{\Delta x} - \frac{\Gamma\:\Delta t}{\rho\left(\Delta x\right)^2} \right]\phi_{I-1}^{n+1} + \left[ 1 + \frac{u_x\:\Delta t}{\Delta x} + \frac{3\Gamma\:\Delta t}{\rho\left(\Delta x\right)^2} \right]\phi_{I}^{n+1} = \phi_{I}^{n} + \left[ \frac{2\Gamma\:\Delta t}{\rho\left(\Delta x\right)^2} \right]\phi_{R}
     \label{eq:ie right}
@@ -179,26 +179,30 @@ Right Node (Node N):
 
 
 
-
+\clearpage
 \section{Results}
 
 \subsection{Explict Euler}
+\Cref{fig:ee1,,fig:ee2,,fig:ee3} show the results for the Explicit Euler solution using $K=0.2,2.0$, and 20.0, respectively. \Cref{tab:error ee} shows the norm error for all Explicit Euler cases.
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\textwidth]{plots/graph_EE_case1.pdf}
     \caption{Explicit Euler solution for case 1: $K=0.2$.}
+    \label{fig:ee1}
 \end{figure}
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\textwidth]{plots/graph_EE_case2.pdf}
     \caption{Explicit Euler solution for case 2: $K=2.0$.}
+    \label{fig:ee2}
 \end{figure}
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\textwidth]{plots/graph_EE_case3.pdf}
     \caption{Explicit Euler solution for case 3: $K=20.0$.}
+    \label{fig:ee3}
 \end{figure}
 
 Norm:
@@ -207,27 +211,35 @@ Norm:
 
 \clearpage
 \subsection{Implicit Euler}
+\Cref{fig:ie1,,fig:ie2,,fig:ie3} show the results for the Explicit Euler solution using $K=0.2,2.0$, and 20.0, respectively. \Cref{tab:error ie} shows the norm error for all Explicit Euler cases.
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\textwidth]{plots/graph_IE_case1.pdf}
     \caption{Implicit Euler solution for case 1: $K=0.2$.}
+    \label{fig:ie1}
 \end{figure}
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\textwidth]{plots/graph_IE_case2.pdf}
     \caption{Implicit Euler solution for case 2: $K=2.0$.}
+    \label{fig:ie2}
 \end{figure}
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\textwidth]{plots/graph_IE_case3.pdf}
     \caption{Implicit Euler solution for case 3: $K=20.0$.}
+    \label{fig:ie3}
 \end{figure}
 
 
 Norm:
 \input{tabs/error_tab_ie.tex}
+
+
+\clearpage
+\section{Discussion}
 
 
 \clearpage
