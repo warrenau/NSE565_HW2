@@ -171,11 +171,11 @@ Right Node (Node N): $\phi_{i+1} = \phi_R$ and $\left( \frac{\partial \phi}{\par
 \end{equation}
 
 
-\subsection{Trapezoidal}
-\begin{multline*}
-    \left[ -\frac{\rho u_x\: \Delta t}{2} - \frac{\Gamma\: \Delta t}{2\: \Delta x} \right]\phi_{I-1}^{n+1} + \left[ \rho \:\Delta x + \frac{\rho u_x\: \Delta t}{2} + \frac{\Gamma\: \Delta t}{\Delta x} \right]\phi_{I}^{n+1} + \left[ -\frac{\Gamma\: \Delta t}{2\: \Delta x} \right]\phi_{I+1}^{n+1}\\
-    = \left[ \frac{\rho u_x\: \Delta t}{2} + \frac{\Gamma\: \Delta t}{2\: \Delta x} \right]\phi_{I-1}^{n} + \left[ \rho \:\Delta x - \frac{\rho u_x\: \Delta t}{2} - \frac{\Gamma\: \Delta t}{\Delta x} \right]\phi_{I}^{n} + \left[ \frac{\Gamma\: \Delta t}{2\: \Delta x} \right]\phi_{I+1}^{n}
-\end{multline*}
+% \subsection{Trapezoidal}
+% \begin{multline*}
+%     \left[ -\frac{\rho u_x\: \Delta t}{2} - \frac{\Gamma\: \Delta t}{2\: \Delta x} \right]\phi_{I-1}^{n+1} + \left[ \rho \:\Delta x + \frac{\rho u_x\: \Delta t}{2} + \frac{\Gamma\: \Delta t}{\Delta x} \right]\phi_{I}^{n+1} + \left[ -\frac{\Gamma\: \Delta t}{2\: \Delta x} \right]\phi_{I+1}^{n+1}\\
+%     = \left[ \frac{\rho u_x\: \Delta t}{2} + \frac{\Gamma\: \Delta t}{2\: \Delta x} \right]\phi_{I-1}^{n} + \left[ \rho \:\Delta x - \frac{\rho u_x\: \Delta t}{2} - \frac{\Gamma\: \Delta t}{\Delta x} \right]\phi_{I}^{n} + \left[ \frac{\Gamma\: \Delta t}{2\: \Delta x} \right]\phi_{I+1}^{n}
+% \end{multline*}
 
 
 
@@ -240,6 +240,62 @@ Norm:
 
 \clearpage
 \section{Discussion}
+For the Explicit Euler results, we see that for other than the smallest time step, the solution is unbounded. We can perform a stability analysis to see what the time step needs to be for Explicit Euler to be stable. We will begin by writing the inner node equation in terms of the time step to characteristic diffusion time ratio, $d=\frac{\Gamma\:\Delta t}{\rho\left(\Delta x\right)^2}$; and the Courant number, $c=\frac{u_x\:\Delta t}{\Delta x}$.
+\begin{equation*}
+    \phi_{I}^{n+1} = \left[ c + d \right]\phi_{I-1}^{n} + \left[ 1-c-2d \right]\phi_{I}^{n} + \left[ d \right]\phi_{I+1}^{n}
+\end{equation*}
+Then we can substitute the eigenvalue into the equation.
+\begin{equation*}
+    \sigma^{n+1} e^{i\alpha I} = \left[ c + d \right]\sigma^{n} e^{i\alpha \left(I-1\right)} + \left[ 1-c-2d \right]\sigma^{n} e^{i\alpha I} + \left[ d \right]\sigma^{n} e^{i\alpha \left(I+1\right)}
+\end{equation*}
+We can divide by $\sigma^n$ and $e^{i\alpha I}$.
+\begin{equation*}
+    \sigma = \left[ c + d \right] e^{-i\alpha} + \left[ 1-c-2d \right] + \left[ d \right] e^{i\alpha}
+\end{equation*}
+We can then substitute the identity for $e^{i\alpha}$ and rearrange to get the solution for the eigenvalue.
+\begin{equation}
+    \sigma = 1 + c \left( \cos\left( \alpha \right) - 1 \right) + 2d \left( \cos\left( \alpha \right) - 1 \right) - ic\sin\left( \alpha \right)
+    \label{eq:eigenvalue}
+\end{equation}
+To be stable, $\sigma < 1$ and $\sigma^2 < 1$ for all values of $\alpha$. We can find the bounding values for $c$ and $d$ by looking at the extreme cases. Firstly, when $d=0$:
+\begin{equation*}
+    \sigma = 1 + c \left( \cos\left( \alpha \right) - 1 \right) - ic\sin\left( \alpha \right)
+\end{equation*}
+\begin{equation*}
+    \sigma^2 = \left[ 1 + c \left( \cos\left( \alpha \right) - 1 \right) \right]^2 + c^2\sin^2\left( \alpha \right)
+\end{equation*}
+We can see that for any value of $c$, $sigma^2 < 1$, so this is always unstable. We do not get any restrictions on $c$ from this case. Next is when $c=0$.
+\begin{equation*}
+    \sigma = 1 + 2d \left( \cos\left( \alpha \right) - 1 \right)
+\end{equation*}
+The worst case is when $\cos\left( \alpha \right) = -1$.
+\begin{equation*}
+    1 > 1 + 2d \left( -1 - 1 \right)
+\end{equation*}
+\begin{equation*}
+    d < \frac{1}{2}
+\end{equation*}
+Now for $\sigma^2$ with the same conditions:
+\begin{equation*}
+    \sigma^2 = \left[1 + 2d \left( \cos\left( \alpha \right) - 1 \right)\right]^2
+\end{equation*}
+\begin{equation*}
+    1 > \left[1 + 2d \left( -1 - 1 \right)\right]^2
+\end{equation*}
+\begin{equation*}
+    1 > \left[1 - 4d\right]^2
+\end{equation*}
+\begin{equation*}
+    1 > 1 - 8d + 16d^2
+\end{equation*}
+\begin{equation*}
+    d < \frac{1}{2}
+\end{equation*}
+So both conditions come to the same bounds that $d$ must be less than 1/2. \Cref{tab:diff ratio} shows $d$ for each time step size and we can see that only the smallest time step is less than 1/2 and the others will not be stable. This matches up with the results as the plots for the second two solutions for Explicit Euler show the instability.
+
+\input{tabs/diff_ratio.tex}
+
+The results for Implicit Euler are all stable since Implicit Euler is an unconditionally stable solution method. We can also see that for the smallest time step, we can see the convergence over time towards the steady solution more clearly. The largest time step gets to the steady soltuion almost immediately. This is expected since we are plotting the solution at certain time steps, not certain times. So the solutions with larger time steps are closer to the steady solution in time at the same time step number than with smaller time steps.
 
 
 \clearpage

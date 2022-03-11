@@ -168,6 +168,9 @@ x = np.linspace(dx/2, tot_length-dx/2,num_volumes)
 dt = K*dx/velocity
 max_iter = 256
 
+# d -- ratio of time step to characteristic diffusion time
+d = diffusion * dt / density / dx**2
+
 # steady state CDS
 phi_ss = cds_ss(num_volumes, tot_length, velocity, density, diffusion, left, right)
 
@@ -280,5 +283,24 @@ out_file.write(
                 '\t\t \\bottomrule \n'+
                 '\t \end{tabular} \n'+
                 '\t \label{tab:error ie} \n'+
+                '\end{table}'
+)
+
+
+out_file = open('HW2/tabs/diff_ratio.tex','w')
+out_file.write(
+                '\\begin{table}[htbp]\n'+
+                '\t \centering\n'+
+                '\t \caption{Time step to characteristic diffusion time ratio.}\n'+
+                '\t \\begin{tabular}{cc}\n'+
+                '\t\t \\toprule\n'+
+                '\t\t $K$ & $d$ \\\ \n'+
+                '\t\t \midrule \n'+
+                '\t\t 0.2 & '+str(d[0])+' \\\ \n'+
+                '\t\t 2.0 & '+str(d[1])+' \\\ \n'+
+                '\t\t 20.0 & '+str(d[2])+' \\\ \n'+
+                '\t\t \\bottomrule \n'+
+                '\t \end{tabular} \n'+
+                '\t \label{tab:diff ratio} \n'+
                 '\end{table}'
 )
